@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.MainAppActivity">
+
+    <Button
+        android:id="@+id/users_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Пользователи"
+        android:onClick="onClick"
+        app:layout_constraintWidth_percent="0.55"
+        app:layout_constraintBottom_toTopOf="@+id/albums_button"
+        android:background="@drawable/button_background"
+        android:padding="5dp"
+        android:layout_margin="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <Button
+        android:id="@+id/albums_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Альбомы"
+        android:onClick="onClick"
+        app:layout_constraintWidth_percent="0.55"
+        android:background="@drawable/button_background"
+        android:padding="5dp"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/photos_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/users_button" />
+
+    <Button
+        android:id="@+id/photos_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Фотографии"
+        android:onClick="onClick"
+        app:layout_constraintWidth_percent="0.55"
+        android:background="@drawable/button_background"
+        android:padding="5dp"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/add_post_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/albums_button" />
+
+    <Button
+        android:id="@+id/add_post_button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Создать пост"
+        android:onClick="onClick"
+        app:layout_constraintWidth_percent="0.55"
+        android:background="@drawable/button_background"
+        android:padding="5dp"
+        android:layout_margin="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/photos_button" />
+</androidx.constraintlayout.widget.ConstraintLayout>
