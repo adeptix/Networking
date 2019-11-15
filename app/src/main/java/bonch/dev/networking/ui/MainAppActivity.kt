@@ -1,5 +1,6 @@
 package bonch.dev.networking.ui
 
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -8,9 +9,18 @@ import bonch.dev.networking.R
 
 class MainAppActivity : AppCompatActivity() {
 
+    val PREFERENCES_NAME = "MyPreference"
+    val FIRST_USE_KEY = "first_key"
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_app)
+
+
+       // val sharedPref = getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
+
+
     }
 
      fun onClick(view: View) {
