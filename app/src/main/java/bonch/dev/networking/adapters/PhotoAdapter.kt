@@ -1,8 +1,6 @@
 package bonch.dev.networking.adapters
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,12 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import bonch.dev.networking.R
 import bonch.dev.networking.models.Photo
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 
-class PhotoAdapter(val list: MutableList<Bitmap>, val context: Context) : RecyclerView.Adapter<ItemPhotoHolder>(){
+class PhotoAdapter(private val list: List<Photo>, private val context: Context, private val hasNetwork: Boolean) :
+    RecyclerView.Adapter<PhotoAdapter.ItemPhotoHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemPhotoHolder {
-       return ItemPhotoHolder(
-           LayoutInflater.from(context).inflate(R.layout.item_photo, parent, false)
-       )
+        return ItemPhotoHolder(
+            LayoutInflater.from(context).inflate(R.layout.item_photo, parent, false)
+        )
     }
 
     override fun getItemCount() = list.size
@@ -27,14 +28,25 @@ class PhotoAdapter(val list: MutableList<Bitmap>, val context: Context) : Recycl
         holder.bind(list[position])
     }
 
-}
 
-class ItemPhotoHolder (itemView : View) : RecyclerView.ViewHolder(itemView){
-    private val imageView = itemView.findViewById<ImageView>(R.id.image_view)
+    inner class ItemPhotoHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val imageView = itemView.findViewById<ImageView>(R.id.image_view)
 
 
-    fun bind (bitmap: Bitmap){
-        //val drawable = Glide.with(itemView).asDrawable().load(photo.url).submit().get()
-        imageView.setImageBitmap(bitmap)
+        fun bind(photo: Photo) {
+            if (hasNetwork)
+                Glide.with(itemView)
+                    .load(photo.url)
+                    .diskCacheStrategy(DiskCacheStrategy.DATA)
+                    .into(imageView)
+
+            else Glide.with(itemView)
+                .load(photo.url)
+                .onlyRetrieveFromCache(true)
+                .into(imageView)
+
+        }
     }
+
+
 }

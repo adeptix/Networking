@@ -23,8 +23,11 @@ import androidx.core.app.ComponentActivity.ExtraData
 import androidx.core.content.ContextCompat.getSystemService
 import android.icu.lang.UCharacter.GraphemeClusterBreak.T
 import androidx.annotation.Nullable
+import bonch.dev.networking.InternetCheck
+import bonch.dev.networking.models.Photo
 import bonch.dev.networking.models.SavedPhoto
 import com.bumptech.glide.request.target.CustomTarget
+import com.google.gson.Gson
 import io.realm.Realm
 import io.realm.RealmConfiguration
 
@@ -41,18 +44,31 @@ class PhotosActivity : AppCompatActivity() {
 
         Realm.init(this)
         val config = RealmConfiguration.Builder()
-            .name("MyDatabase.realm")
+            .name("NetworkingDB")
             .build()
         realm = Realm.getInstance(config)
 
         recycler.layoutManager = LinearLayoutManager(this)
         recycler.addItemDecoration(
             DividerItemDecoration(
-                this@PhotosActivity,
+                this,
                 DividerItemDecoration.VERTICAL
             )
         )
 
+        InternetCheck(object : InternetCheck.Consumer {
+            override fun accept(internet: Boolean?) {
+                if(internet!!) download()
+                else loadFromRealm()
+            }
+        })
+
+
+
+
+    }
+
+    private fun download(){
         val service = RetrofitFactory.makeRetrofitService()
 
         CoroutineScope(Dispatchers.IO).launch {
@@ -61,38 +77,56 @@ class PhotosActivity : AppCompatActivity() {
             try {
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        CoroutineScope(Dispatchers.IO).launch {
-                            val list : MutableList<Bitmap> = arrayListOf()
-                            response.body()!!.forEach{
-                                glideDownload(it.url, list)
-                            }
-                            try{
-                                withContext(Dispatchers.Main) {
-                                    recycler.adapter = PhotoAdapter(list, this@PhotosActivity)
-                                  //  saveData(list)
-                                }
-                            }catch (err: HttpException) {
-                                Log.e("Retrofit", "${err.printStackTrace()}")
-                            }
 
+                        recycler.adapter = PhotoAdapter(response.body()!!, this@PhotosActivity, true)
+                        Toast.makeText(applicationContext, "from internet", Toast.LENGTH_SHORT).show()
+                        response.body()!!.forEach{
+                            saveToRealm(it.url)
                         }
 
-
                     } else {
-                        Toast.makeText(applicationContext, "${response.code()}", Toast.LENGTH_SHORT)
-                            .show()
+                        Toast.makeText(applicationContext, "${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (err: HttpException) {
                 Log.e("Retrofit", "${err.printStackTrace()}")
             }
         }
+    }
 
+//    suspend fun glideDownload(url : String, list : MutableList<Bitmap>){
+//        val bitmap = Glide.with(this).asBitmap().load(url).submit().get()
+//        list.add(bitmap)
+//        val json = Gson.toJson(bitmap)
+//        Log.i("ADEPT", json)
+//    }
+
+    private fun loadFromRealm(){
+        val allPhotos = realm.where(Photo::class.java).findAll()
+
+        if(allPhotos.isNotEmpty()){
+            recycler.adapter = PhotoAdapter(allPhotos, this, false)
+            Toast.makeText(this, "from Realm", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(this, "No data stored. Internet connection required!", Toast.LENGTH_LONG).show()
+        }
 
     }
 
-    suspend fun glideDownload(url : String, list : MutableList<Bitmap>){
-        list.add(Glide.with(this).asBitmap().load(url).submit().get())
+    private fun saveToRealm(url : String?){
+        realm.executeTransactionAsync({ bgRealm ->
+
+            val photo = bgRealm.createObject(Photo::class.java)
+            photo.url = url
+
+        }, {
+            //success
+            Log.i("ADEPT", "successful save")
+        }, {
+            //fail
+
+            Log.i("ADEPT", "failed save ${it.message}")
+        })
     }
 
 //    fun saveData(list : List<Bitmap>) {
